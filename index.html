@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Passive web security scanning for Indian small businesses. Plain-language findings, the exact fix, and proof of permission before a single request. Rs 999 per scan.">
+<meta name="theme-color" content="#0b0d0c">
+<link rel="canonical" href="https://suscanner.in/">
+
+<!-- Open Graph. Without these, a link shared to LinkedIn or WhatsApp renders
+     as a bare grey card, which reads as broken. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://suscanner.in/">
+<meta property="og:site_name" content="SUScanner">
+<meta property="og:title" content="SUScanner — find what's exposed on your website">
+<meta property="og:description" content="A read-only security scan in about fifteen seconds. Written twice: once for the owner, once for the developer.">
+<meta property="og:image" content="https://suscanner.in/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SUScanner — find what's exposed on your website">
+<meta name="twitter:description" content="A read-only security scan in about fifteen seconds.">
+<meta name="twitter:image" content="https://suscanner.in/og.png">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><circle cx=%2216%22 cy=%2216%22 r=%2210%22 fill=%22%235be08f%22/></svg>">
+
+<style>
+  /* The publisher's skeleton supplies these; standing alone, we do. */
+  html, body { margin: 0; padding: 0; }
+  :root { color-scheme: dark; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>SUScanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+
+<style>
+  /* SUScanner promo — single visual world (the "hunt" zone from docs/BRAND.md).
+     Deliberately one theme: every colour is painted explicitly so the page
+     holds on either host ground. */
+  :root {
+    --ground:   #0b0d0c;
+    --surface:  #131816;
+    --surface-2:#191f1c;
+    --line:     #263029;
+    --line-2:   #35433a;
+    --ink:      #eef3ef;
+    --ink-2:    #a9b8ae;
+    --ink-3:    #7d8f84;
+    --acc:      #5be08f;
+    --acc-dim:  #2c7a4d;
+    --crit:     #ff6166;
+    --high:     #ff8a4d;
+    --med:      #f0b04a;
+    --low:      #a8de6b;
+    --info:     #7fd0e2;
+    --f-disp:   "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --f-read:   "Newsreader", Georgia, serif;
+    --f-mono:   "IBM Plex Mono", "SF Mono", Menlo, monospace;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-disp);
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 0;
+  }
+
+  section { padding-block: 72px; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: 0; }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--acc);
+    margin: 0 0 18px;
+  }
+  .eyebrow.plain { color: var(--ink-3); }
+
+  h1 {
+    font-size: clamp(38px, 8vw, 68px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    font-weight: 900;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h2 {
+    font-size: clamp(26px, 4.4vw, 38px);
+    line-height: 1.06;
+    letter-spacing: -0.025em;
+    font-weight: 900;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .lede {
+    font-family: var(--f-read);
+    font-size: clamp(17px, 2.4vw, 21px);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 54ch;
+    margin: 20px 0 0;
+  }
+  .note {
+    font-family: var(--f-read);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  /* ------------------------------------------------------------- masthead */
+  .masthead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-block: 22px 0;
+  }
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+  .pip {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--acc);
+    box-shadow: 0 0 0 4px rgba(91, 224, 143, 0.16);
+    flex: none;
+  }
+  .masthead .tag {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* ----------------------------------------------------------------- hero */
+  .hero { padding-block: 44px 72px; }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  }
+
+  .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 30px; }
+
+  .btn {
+    font-family: var(--f-disp);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    background: var(--acc);
+    color: #06130c;
+    border: 0;
+    border-radius: 3px;
+    padding: 13px 22px;
+    cursor: pointer;
+  }
+  .btn:hover { background: #74e9a1; }
+  .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  .stamp {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  /* ----------------------------------------------------------- scan panel */
+  .scan {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .scan-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    flex-wrap: wrap;
+  }
+  .host {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .verified {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--acc);
+    border: 1px solid var(--acc-dim);
+    border-radius: 2px;
+    padding: 3px 7px;
+  }
+  .scan-body { padding: 18px 16px 20px; }
+
+  .status-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+  }
+  #step { color: var(--ink); }
+  #reqs { color: var(--ink-3); font-variant-numeric: tabular-nums; flex: none; }
+
+  .track {
+    height: 3px;
+    background: var(--line);
+    border-radius: 2px;
+    margin: 12px 0 20px;
+    overflow: hidden;
+  }
+  .fill {
+    height: 100%;
+    width: 0%;
+    background: var(--acc);
+    border-radius: 2px;
+  }
+
+  /* findings list */
+  .finds { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .find {
+    display: grid;
+    grid-template-columns: 3px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    background: var(--surface-2);
+    padding: 11px 12px 11px 0;
+    transition: background 180ms ease;
+  }
+  .find.lit { background: #24332b; box-shadow: inset 0 0 0 1px rgba(91, 224, 143, 0.28); }
+  .find.lit p { color: #ffffff; }
+  .bar { width: 3px; height: 100%; align-self: stretch; background: var(--line-2); }
+  .find[data-sev="critical"] .bar { background: var(--crit); }
+  .find[data-sev="high"]     .bar { background: var(--high); }
+  .find[data-sev="medium"]   .bar { background: var(--med); }
+  .find[data-sev="low"]      .bar { background: var(--low); }
+  .find p { margin: 0; font-size: 14px; line-height: 1.35; letter-spacing: -0.01em; }
+  .sev {
+    font-family: var(--f-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding-right: 12px;
+    flex: none;
+  }
+  .find[data-sev="critical"] .sev { color: var(--crit); }
+  .find[data-sev="high"]     .sev { color: var(--high); }
+  .find[data-sev="medium"]   .sev { color: var(--med); }
+  .find[data-sev="low"]      .sev { color: var(--low); }
+
+  /* grade dial */
+  .verdict {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .dial {
+    --p: 0;
+    width: 62px; height: 62px; flex: none;
+    border-radius: 50%;
+    background: conic-gradient(var(--acc) calc(var(--p) * 1%), var(--line) 0);
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+  .dial::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--surface);
+  }
+  .dial span {
+    position: relative;
+    z-index: 1;
+    font-family: var(--f-disp);
+    font-weight: 900;
+    font-size: 27px;
+    letter-spacing: -0.03em;
+  }
+  .verdict-text p { margin: 0; }
+  .verdict-text .big { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+  .verdict-text .sub { font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3); margin-top: 4px; }
+
+  /* --------------------------------------------------------- two layers */
+  .layers { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 28px; }
+  @media (min-width: 760px) { .layers { grid-template-columns: 1fr 1fr; gap: 20px; } }
+
+  .layer {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px 18px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .layer .who {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+  .layer .said { font-family: var(--f-read); font-size: 17px; line-height: 1.5; color: var(--ink); margin: 0; }
+  .layer pre {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    background: var(--ground);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 12px;
+    margin: 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* -------------------------------------------------------------- gates */
+  .gates { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin-top: 28px; }
+  @media (min-width: 820px) { .gates { grid-template-columns: repeat(3, 1fr); } }
+  .gate { background: var(--surface); padding: 22px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .gate .n {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--acc);
+  }
+  .gate p { margin: 0; font-family: var(--f-read); font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+
+  /* --------------------------------------------------------------- price */
+  .price-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-top: 26px; }
+  .rupees { font-size: clamp(46px, 9vw, 68px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.9; }
+  .per { font-family: var(--f-mono); font-size: 13px; color: var(--ink-3); padding-bottom: 6px; }
+
+  .fine {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 26px;
+    padding: 0;
+    list-style: none;
+    font-family: var(--f-mono);
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .fine li { display: flex; gap: 10px; align-items: baseline; }
+  .fine li::before { content: "—"; color: var(--acc); flex: none; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-block: 28px 48px;
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .find { transition: none; }
+  }
+</style>
+
+</head>
+<body>
+<div class="sheet">
+  <header class="masthead">
+    <div class="wordmark"><span class="pip"></span>SUScanner</div>
+    <div class="tag">Passive web security scanning · India</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Read-only. No attack traffic.</p>
+        <h1>Your website is telling strangers things you didn't mean to publish.</h1>
+        <p class="lede">
+          SUScanner reads what your site already hands out to anyone who asks —
+          headers, certificate, DNS, and 38 file paths attackers check first —
+          and tells you, in plain language, what it found and how to fix it.
+        </p>
+        <div class="hero-actions">
+          <button class="btn" id="replay" type="button">Replay the scan</button>
+          <span class="stamp">Average scan: 15 seconds</span>
+        </div>
+      </div>
+
+      <div class="scan" aria-label="Example scan in progress">
+        <div class="scan-head">
+          <span class="host">lotusinteriors.in</span>
+          <span class="verified">Ownership verified</span>
+        </div>
+        <div class="scan-body">
+          <div class="status-row">
+            <span id="step">Complete — 14.2s</span>
+            <span id="reqs">41 requests</span>
+          </div>
+          <div class="track"><div class="fill" id="fill" style="width:100%"></div></div>
+
+          <div class="finds">
+            <div class="find" data-sev="critical">
+              <div class="bar"></div>
+              <p>A full database backup is publicly downloadable</p>
+              <span class="sev">Critical</span>
+            </div>
+            <div class="find" data-sev="high">
+              <div class="bar"></div>
+              <p>Your security certificate expired 11 days ago</p>
+              <span class="sev">High</span>
+            </div>
+            <div class="find" data-sev="medium">
+              <div class="bar"></div>
+              <p>Your login cookie can be read by any script on the page</p>
+              <span class="sev">Medium</span>
+            </div>
+            <div class="find" data-sev="low">
+              <div class="bar"></div>
+              <p>Your server announces its exact version number</p>
+              <span class="sev">Low</span>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="dial" id="dial" style="--p:100"><span id="grade">B</span></div>
+            <div class="verdict-text">
+              <p class="big" id="verdict">Grade B — one thing needs fixing today</p>
+              <p class="sub">4 findings · WordPress on nginx · read-only checks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow plain">One finding, two readers</p>
+    <h2>The owner gets a sentence. The developer gets the command.</h2>
+    <p class="note">
+      Most scanners produce a PDF nobody in a ten-person business can act on.
+      Every SUScanner finding is written twice — once for the person who owns
+      the company, once for whoever actually touches the server.
+    </p>
+
+    <div class="layers">
+      <div class="layer">
+        <p class="who">What the owner reads</p>
+        <p class="said">
+          Anyone on the internet can download a complete copy of your database
+          from your own website. That file contains every customer record,
+          address and order you've ever taken.
+        </p>
+        <p class="who">Why it matters</p>
+        <p class="said">
+          Nobody needs to break in. They just click the link.
+        </p>
+      </div>
+      <div class="layer">
+        <p class="who">What the developer reads</p>
+<pre>GET /backup.sql → 200 OK
+content-type: application/octet-stream
+content-length: 43,118,592
+body starts: "-- MySQL dump 10.13"</pre>
+        <p class="who">Fix — nginx</p>
+<pre>rm /var/www/lotus/backup.sql
+
+location ~* \.(sql|bak|old|zip)$ {
+    return 404;
+}
+# then: nginx -t && systemctl reload nginx</pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow plain">Before a single packet leaves</p>
+    <h2>Three gates, checked before every request.</h2>
+    <p class="note">
+      Scanning a site you don't own is an offence under the IT Act. So the
+      scanner refuses to, structurally — not by policy, and not once per scan,
+      but before every single request it makes.
+    </p>
+
+    <div class="gates">
+      <div class="gate">
+        <span class="n">GATE 01</span>
+        <h3>Ownership</h3>
+        <p>You prove the domain is yours with a DNS record, a file, or a meta tag. Unverified domains cannot be scanned at all.</p>
+      </div>
+      <div class="gate">
+        <span class="n">GATE 02</span>
+        <h3>Denylist</h3>
+        <p>Government, banking and major platform infrastructure is refused even if someone somehow verifies it.</p>
+      </div>
+      <div class="gate">
+        <span class="n">GATE 03</span>
+        <h3>Address space</h3>
+        <p>Every resolved IP must be publicly routable — so nobody can point a domain at an internal address and use us to reach inside a network.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow plain">Pricing</p>
+    <h2>One scan. One price. No subscription to cancel.</h2>
+    <div class="price-row">
+      <span class="rupees">₹999</span>
+      <span class="per">per scan · GST extra</span>
+    </div>
+    <ul class="fine">
+      <li>Your first scan is free — no card, no call.</li>
+      <li>Report stays online; re-run it any time to see what changed.</li>
+      <li>Read-only checks. Nothing is exploited, nothing is written to your site.</li>
+      <li>Every scan is logged, so you can show an auditor who ran what, and when.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>SUScanner · Passive scanning only</span>
+    <span>lotusinteriors.in is an example, not a customer</span>
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var stepEl  = document.getElementById("step");
+    var reqsEl  = document.getElementById("reqs");
+    var fillEl  = document.getElementById("fill");
+    var dialEl  = document.getElementById("dial");
+    var gradeEl = document.getElementById("grade");
+    var verdEl  = document.getElementById("verdict");
+    var VERDICT = "Grade B — one thing needs fixing today";
+    var finds   = Array.prototype.slice.call(document.querySelectorAll(".find"));
+    var btn     = document.getElementById("replay");
+
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // The real pipeline order, with the timings a 14-second scan actually has.
+    var STEPS = [
+      { t: 0,     label: "Queued",                        pct: 0,   req: 0  },
+      { t: 700,   label: "Confirming you own this domain",pct: 8,   req: 1  },
+      { t: 2000,  label: "Reading security headers",      pct: 24,  req: 4  },
+      { t: 3400,  label: "Inspecting the certificate",    pct: 40,  req: 6  },
+      { t: 4700,  label: "Checking DNS records",          pct: 54,  req: 9  },
+      { t: 6000,  label: "Probing 38 known file paths",   pct: 90,  req: 38 },
+      { t: 8600,  label: "Complete — 14.2s",              pct: 100, req: 41 }
+    ];
+    var LIT   = [9100, 9700, 10300, 10900];   // findings surface one by one
+    var GRADE = [
+      { t: 8600,  g: "F" },
+      { t: 9400,  g: "D" },
+      { t: 10200, g: "C" },
+      { t: 11200, g: "B" }
+    ];
+    var END = 15500;
+
+    var start = null;
+    var raf = null;
+
+    function lerp(a, b, k) { return a + (b - a) * k; }
+
+    function frame(now) {
+      if (start === null) start = now;
+      var e = now - start;
+
+      // progress + request counter, interpolated between pipeline steps
+      var i = 0;
+      while (i < STEPS.length - 1 && e >= STEPS[i + 1].t) i++;
+      var cur = STEPS[i];
+      var nxt = STEPS[i + 1];
+      var pct = cur.pct, req = cur.req;
+      if (nxt) {
+        var k = Math.min(1, (e - cur.t) / (nxt.t - cur.t));
+        pct = lerp(cur.pct, nxt.pct, k);
+        req = Math.round(lerp(cur.req, nxt.req, k));
+      }
+      stepEl.textContent = cur.label;
+      reqsEl.textContent = req + (req === 1 ? " request" : " requests");
+      fillEl.style.width = pct.toFixed(1) + "%";
+      dialEl.style.setProperty("--p", pct.toFixed(1));
+
+      // grade settles as the scoring runs
+      var g = "F";
+      for (var j = 0; j < GRADE.length; j++) if (e >= GRADE[j].t) g = GRADE[j].g;
+      var scoring = e >= GRADE[0].t;
+      var settled = e >= GRADE[GRADE.length - 1].t;
+      gradeEl.textContent = scoring ? g : "·";
+      gradeEl.style.color = scoring ? "var(--ink)" : "var(--ink-3)";
+      verdEl.textContent = settled
+        ? VERDICT
+        : scoring
+          ? "Scoring against 38 checks…"
+          : "Scan in progress";
+
+      // findings light up in the order the modules report them
+      for (var m = 0; m < finds.length; m++) {
+        finds[m].classList.toggle("lit", e >= LIT[m] && e < LIT[m] + 900);
+      }
+
+      if (e < END) {
+        raf = requestAnimationFrame(frame);
+      } else {
+        settle();
+        start = null;
+        raf = requestAnimationFrame(function (t) { start = t; frame(t); });
+      }
+    }
+
+    function settle() {
+      stepEl.textContent = "Complete — 14.2s";
+      reqsEl.textContent = "41 requests";
+      fillEl.style.width = "100%";
+      dialEl.style.setProperty("--p", "100");
+      gradeEl.textContent = "B";
+      gradeEl.style.color = "var(--ink)";
+      verdEl.textContent = VERDICT;
+      finds.forEach(function (f) { f.classList.remove("lit"); });
+    }
+
+    function play() {
+      if (reduce) { settle(); return; }
+      if (raf) cancelAnimationFrame(raf);
+      start = null;
+      raf = requestAnimationFrame(frame);
+    }
+
+    btn.addEventListener("click", play);
+    settle();
+    play();
+  })();
+</script>
+
+</body>
+</html>
