@@ -164,6 +164,51 @@
     text-transform: uppercase;
     color: var(--ink-3);
   }
+  .masthead .right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  /* The app lives on a different host to this page, because this page is
+     static and always up while the app is not. Visitors should never have
+     to know that, so both ends carry the link. */
+  .signin {
+    font-family: var(--f-disp);
+    font-weight: 700;
+    font-size: 13.5px;
+    letter-spacing: -0.01em;
+    color: var(--acc);
+    text-decoration: none;
+    border: 1px solid var(--acc-dim);
+    border-radius: 3px;
+    padding: 7px 14px;
+    white-space: nowrap;
+  }
+  .signin:hover { background: rgba(91, 224, 143, 0.1); }
+  .signin:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+
+  .cta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+  .cta {
+    font-family: var(--f-disp);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    background: var(--acc);
+    color: #06130c;
+    text-decoration: none;
+    border-radius: 3px;
+    padding: 13px 22px;
+    display: inline-block;
+  }
+  .cta:hover { background: #74e9a1; }
+  .cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
   /* ----------------------------------------------------------------- hero */
   .hero { padding-block: 44px 72px; }
@@ -418,7 +463,10 @@
 <div class="sheet">
   <header class="masthead">
     <div class="wordmark"><span class="pip"></span>SUScanner</div>
-    <div class="tag">Passive web security scanning · India</div>
+    <div class="right">
+      <span class="tag">Passive web security scanning · India</span>
+      <a class="signin" href="https://app.suscanner.in">Sign in</a>
+    </div>
   </header>
 
   <section class="hero">
@@ -564,6 +612,11 @@ location ~* \.(sql|bak|old|zip)$ {
       <li>Read-only checks. Nothing is exploited, nothing is written to your site.</li>
       <li>Every scan is logged, so you can show an auditor who ran what, and when.</li>
     </ul>
+
+    <div class="cta-row">
+      <a class="cta" href="https://app.suscanner.in">Sign in to SUScanner</a>
+      <span class="stamp">Accounts are invite-only while we're in testing.</span>
+    </div>
   </section>
 
   <footer>
